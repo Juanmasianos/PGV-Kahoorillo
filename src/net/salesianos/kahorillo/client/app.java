@@ -10,7 +10,8 @@ import java.net.UnknownHostException;
 import java.util.Scanner;
 
 import net.salesianos.kahorillo.client.emitter.ClientEmitter;
-import net.salesianos.kahorillo.client.listerner.ServerListener;
+import net.salesianos.kahorillo.client.leaderGame.Leader;
+import net.salesianos.kahorillo.client.listener.ServerListener;
 
 public class app {
   public static void main(String[] args) {
@@ -29,7 +30,7 @@ public class app {
 
       InputStream inputStream = socket.getInputStream();
 
-      ClientEmitter player = new ClientEmitter(new DataOutputStream(outputStream), scanner);
+      ClientEmitter clientEmitter = new ClientEmitter(new DataOutputStream(outputStream), scanner);
 
       ServerListener serverListener = new ServerListener(new DataInputStream(inputStream));
 
@@ -38,7 +39,8 @@ public class app {
 
         if (serverListener.playerType() == "leader") {
 
-          
+          Leader leader = new Leader(serverListener, clientEmitter);
+          leader.createQuestions();
 
         } else if (serverListener.playerType() == "error") {
           game = false;
