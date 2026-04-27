@@ -39,7 +39,7 @@ public class app {
 
         if (serverListener.playerType() == "leader") {
 
-          Leader leader = new Leader(serverListener, clientEmitter);
+          Leader leader = new Leader(serverListener, clientEmitter, scanner);
           leader.createQuestions();
 
         } else if (serverListener.playerType() == "error") {
