@@ -85,7 +85,7 @@ public class Leader {
     System.out.println("Juego iniciado. Esperando a que terminen los jugadores...");
 
     String finalResult = serverListener.read();
-    System.out.println(finalResult);
+    System.out.println("\n" + finalResult);
 
     System.out.println("El juego ha finalizado. Gracias por ser el líder.");
 

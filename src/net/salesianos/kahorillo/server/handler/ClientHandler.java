@@ -161,6 +161,9 @@ public class ClientHandler extends Thread {
                 Thread.sleep(100);
             }
 
+            // Enviar ranking al jugador
+            serverEmitter.write(gameManager.getScoreBoard().getRankingString());
+
             System.out.println("Cerrando conexión con jugador: " + username);
 
         } catch (InterruptedException | SocketException e) {

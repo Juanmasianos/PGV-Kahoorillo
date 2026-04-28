@@ -27,15 +27,20 @@ public class Player {
             boolean game = true;
             while (game) {
                 try {
-                    String question = serverListener.read();
+                    String message = serverListener.read();
 
-                    if (question.equals("se acabo el juego")) {
+                    if (message.equals("se acabo el juego")) {
                         game = false;
                         break;
                     }
 
+                    // Ignorar mensajes que no sean preguntas
+                    if (!message.startsWith("PREGUNTA")) {
+                        continue;
+                    }
+
                 System.out.println("\n--- PREGUNTA ---");
-                System.out.println(question);
+                System.out.println(message);
                 System.out.print("Tu respuesta (tienes 15s): ");
 
                 long startTime = System.currentTimeMillis();
@@ -61,6 +66,12 @@ public class Player {
                     game = false;
                 }
             }
+            
+            // Leer y mostrar el ranking final
+            String ranking = serverListener.read();
+            System.out.println("\n" + ranking);
+            System.out.println("¡El juego ha terminado!");
+            
         } finally {
             try {
                 reader.close();
