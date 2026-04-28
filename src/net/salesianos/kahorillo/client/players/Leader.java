@@ -65,19 +65,40 @@ public class Leader {
     while (!serverListener.read().equals("jugadores listos")) {
     }
     System.out.println("Todos los jugadores están listos, comienza el juego escribiendo \"start\"");
-    while (!scanner.nextLine().toLowerCase().equals("start")) {
-      System.out.println("Valor no válido, escribe \"start\" para comenzar el juego.");
+    String input = "";
+
+    while (true) {
+      if (scanner.hasNextLine()) {
+        input = scanner.nextLine().trim().toLowerCase();
+        if (input.equals("start")) {
+          break;
+        }
+        if (!input.isEmpty()) {
+          System.out.println("Has escrito: '" + input + "'. Escribe \"start\" para comenzar.");
+        }
+      }
     }
+
     clientEmitter.write("start");
+
+
+    System.out.println("Juego iniciado. Esperando a que terminen los jugadores...");
+    
+    // Leemos lo que el servidor mande al final (el ranking)
+    String finalResult = serverListener.read(); 
+    System.out.println(finalResult);
+    
+    System.out.println("El juego ha finalizado. Gracias por ser el líder.");
+
   }
 
   private void addQuestion(int iterator) {
-      System.out.println("Introduce la " + iterator + "ª pregunta: ");
-      String question = scanner.nextLine();
-      this.questions.add(question);
-      System.out.println("Introduce su respuesta: ");
-      String answer = scanner.nextLine().toLowerCase();
-      this.answers.add(answer);
+    System.out.println("Introduce la " + iterator + "ª pregunta: ");
+    String question = scanner.nextLine();
+    this.questions.add(question);
+    System.out.println("Introduce su respuesta: ");
+    String answer = scanner.nextLine().toLowerCase();
+    this.answers.add(answer);
   }
 
   private void removeQuestion(Scanner scanner) {

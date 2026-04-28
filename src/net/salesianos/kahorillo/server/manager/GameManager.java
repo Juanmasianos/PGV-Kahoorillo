@@ -56,9 +56,10 @@ public class GameManager {
     public void waitForPlayers() throws InterruptedException {
         while (players.size() < minPlayers) {
             System.out.println("Esperando jugadores... (" + players.size() + "/" + minPlayers + ")");
-            Thread.sleep(1000);
+            Thread.sleep(5000);
         }
         System.out.println("Suficientes jugadores conectados. El líder puede comenzar el juego.");
+        return;
     }
 
     public void startGame() {

@@ -82,11 +82,19 @@ public class ClientHandler extends Thread {
             System.out.println("Preguntas recibidas del líder: " + questionsNumber);
 
             gameManager.waitForPlayers();
+
             serverEmitter.write("jugadores listos");
 
-            if (clientListener.read().equals("start")) {
-                System.out.println("Líder ha iniciado el juego");
+            clientListener.read();
+            String startSignal = clientListener.read();
+            if (startSignal != null && startSignal.equalsIgnoreCase("start")) {
+                System.out.println("Líder ha iniciado el juego correctamente.");
                 gameManager.startGame();
+            }
+
+            // AHORA SÍ, el while no se saltará porque gameRunning ya es true
+            while (gameManager.isGameRunning()) {
+                Thread.sleep(100);
             }
 
             while (gameManager.isGameRunning()) {
@@ -97,6 +105,10 @@ public class ClientHandler extends Thread {
 
         } catch (InterruptedException e) {
             System.out.println("Error en manejo de líder: " + e.getMessage());
+            gameManager.removeLeader();
+        } catch (Exception e) {
+            System.out.println("ERROR CRÍTICO LÍDER: " + e.getMessage());
+            e.printStackTrace();
             gameManager.removeLeader();
         }
     }
@@ -120,7 +132,7 @@ public class ClientHandler extends Thread {
                 try {
                     playerAnswers[i] = clientListener.read();
                     System.out.println("Respuesta de " + username + ": " + playerAnswers[i]);
-                } catch (SocketTimeoutException e) { 
+                } catch (SocketTimeoutException e) {
                     playerAnswers[i] = "SIN RESPUESTA";
                 } finally {
                     clientSocket.setSoTimeout(0);
