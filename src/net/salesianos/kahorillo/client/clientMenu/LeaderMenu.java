@@ -5,10 +5,12 @@ public class LeaderMenu {
   public static void showQuestionsMenu() {
 
     System.out.println("""
-      1. añadir otra pregunta
-      2. remover pregunta
-      3. listo
-    """);
+\n\n
+Selecciona una opción:
+1. añadir otra pregunta
+2. remover pregunta
+3. listo
+\n\n""");
 
   }
   

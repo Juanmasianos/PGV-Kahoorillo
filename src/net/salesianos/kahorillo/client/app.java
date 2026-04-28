@@ -44,6 +44,8 @@ public class app {
 
       if (playerType.equals("leader")) {
 
+
+        System.out.println("Bienvenido " + username + ", como has sido el mas rapido, seras el lider. \nPrepara tus preguntas para el juego.");
         Leader leader = new Leader(serverListener, clientEmitter, scanner);
         leader.createQuestions();
         leader.startGame();
@@ -51,6 +53,7 @@ public class app {
       } else if (playerType.equals("player")) {
 
         Player player = new Player(serverListener, clientEmitter, scanner);
+        System.out.println("Bienvenido " + username + ". Espera a que el lider inicie el juego...");
 
       } else {
         System.out.println("Saliendo del juego...");

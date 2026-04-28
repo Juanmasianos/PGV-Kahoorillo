@@ -54,6 +54,7 @@ public class Leader {
     } while (anotherQuestion);
 
     clientEmitter.write(questions.toArray(new String[0]));
+    clientEmitter.write(answers.toArray(new String[0]));
 
   }
 

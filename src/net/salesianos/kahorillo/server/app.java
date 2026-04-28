@@ -18,7 +18,7 @@ public class app {
         Socket socket = serverSocket.accept();
         System.out.println("Nueva conexión recibida");
         
-        ClientHandler clientHandler = new ClientHandler(socket);
+        ClientHandler clientHandler = new ClientHandler(socket, gameManager);
         clientHandler.start();
       }
 
