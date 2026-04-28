@@ -1,18 +1,21 @@
-## Getting Started
+# Kahorillo 🎮
 
-Welcome to the VS Code Java world. Here is a guideline to help you get started to write Java code in Visual Studio Code.
+Kahorillo es una plataforma de juegos de preguntas y respuestas en tiempo real basada en una arquitectura **Cliente-Servidor**. Utiliza Sockets de Java para permitir que un "Líder" cree una ronda de preguntas y que varios "Jugadores" compitan simultáneamente por la mejor puntuación.
 
-## Folder Structure
+## 🚀 Características
 
-The workspace contains two folders by default, where:
+* **Asignación Automática:** El primer usuario en conectarse es designado como **Líder**.
+* **Gestión Dinámica:** El Líder define las preguntas y respuestas antes de iniciar la partida.
+* **Multijugador:** Soporta múltiples conexiones simultáneas (mínimo 2 jugadores para iniciar).
+* **Sistema de Puntuación:** Validación en tiempo real de respuestas y ranking final al terminar la partida.
 
-- `src`: the folder to maintain sources
-- `lib`: the folder to maintain dependencies
+## 🛠️ Tecnologías utilizadas
 
-Meanwhile, the compiled output files will be generated in the `bin` folder by default.
+* **Lenguaje:** Java 17+
+* **Comunicación:** Java Sockets (TCP/IP)
+* **Concurrencia:** Hilos (Threads) para el manejo de múltiples clientes.
 
-> If you want to customize the folder structure, open `.vscode/settings.json` and update the related settings there.
+## 📋 Requisitos
 
-## Dependency Management
-
-The `JAVA PROJECTS` view allows you to manage your dependencies. More details can be found [here](https://github.com/microsoft/vscode-java-dependency#manage-dependencies).
+* Tener instalado el **JDK 17** o superior.
+* Acceso a una red local o uso de `localhost`.
