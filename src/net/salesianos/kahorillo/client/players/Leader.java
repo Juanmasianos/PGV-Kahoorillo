@@ -1,4 +1,4 @@
-package net.salesianos.kahorillo.client.leaderGame;
+package net.salesianos.kahorillo.client.players;
 
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -20,8 +20,8 @@ public class Leader {
     this.serverListener = serverListener;
     this.clientEmitter = clientEmitter;
     this.scanner = scanner;
-    this.questions = new ArrayList<>();
-    this.answers = new ArrayList<>();
+    this.questions = new ArrayList<String>();
+    this.answers = new ArrayList<String>();
 
   }
 
@@ -31,9 +31,7 @@ public class Leader {
     int iterator = 1;
 
     do {
-      System.out.println("Introduce la " + iterator + "ª pregunta: ");
-      String question = scanner.nextLine();
-      this.questions.add(question);
+      addQuestion(iterator);
       LeaderMenu.showQuestionsMenu();
       String option = scanner.nextLine();
       boolean correctOption = true;
@@ -55,6 +53,30 @@ public class Leader {
       iterator++;
     } while (anotherQuestion);
 
+    clientEmitter.write(questions.toArray(new String[0]));
+
+  }
+
+  public void startGame() {
+    while (!serverListener.read().equals("preguntas recibidas")) {
+    }
+    System.out.println("Preguntas enviadas correctamente, esperando a los jugadores...");
+    while (!serverListener.read().equals("jugadores listos")) {
+    }
+    System.out.println("Todos los jugadores están listos, comienza el juego escribiendo \"start\"");
+    while (!scanner.nextLine().toLowerCase().equals("start")) {
+      System.out.println("Valor no válido, escribe \"start\" para comenzar el juego.");
+    }
+    clientEmitter.write("start");
+  }
+
+  private void addQuestion(int iterator) {
+      System.out.println("Introduce la " + iterator + "ª pregunta: ");
+      String question = scanner.nextLine();
+      this.questions.add(question);
+      System.out.println("Introduce su respuesta: ");
+      String answer = scanner.nextLine().toLowerCase();
+      this.answers.add(answer);
   }
 
   private void removeQuestion(Scanner scanner) {

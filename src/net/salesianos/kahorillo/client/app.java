@@ -10,8 +10,9 @@ import java.net.UnknownHostException;
 import java.util.Scanner;
 
 import net.salesianos.kahorillo.client.emitter.ClientEmitter;
-import net.salesianos.kahorillo.client.leaderGame.Leader;
 import net.salesianos.kahorillo.client.listener.ServerListener;
+import net.salesianos.kahorillo.client.players.Leader;
+import net.salesianos.kahorillo.client.players.Player;
 
 public class app {
   public static void main(String[] args) {
@@ -34,23 +35,25 @@ public class app {
 
       ServerListener serverListener = new ServerListener(new DataInputStream(inputStream));
 
-      boolean game = true;
-      while (game) {
+      System.out.println("Introduce tu nombre de usuario: ");
+      String username = scanner.nextLine();
 
-        if (serverListener.playerType() == "leader") {
+      clientEmitter.write(username);
 
-          Leader leader = new Leader(serverListener, clientEmitter, scanner);
-          leader.createQuestions();
+      String playerType = serverListener.read().substring(12);
 
-        } else if (serverListener.playerType() == "error") {
-          game = false;
-          System.out.println("Saliendo del juego...");
-        } else {
+      if (playerType.equals("leader")) {
 
+        Leader leader = new Leader(serverListener, clientEmitter, scanner);
+        leader.createQuestions();
+        leader.startGame();
 
+      } else if (playerType.equals("player")) {
 
-        }
+        Player player = new Player(serverListener, clientEmitter, scanner);
 
+      } else {
+        System.out.println("Saliendo del juego...");
       }
 
     } catch (UnknownHostException e) {

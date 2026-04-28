@@ -15,17 +15,24 @@ public class ClientEmitter {
 
   }
 
-  public void run() {
+  public void write(String string) {
     try {
-      System.out.println("Introduce tu nombre de usuario: ");
-      String username = scanner.nextLine();
-
-      dataOutputStream.writeUTF(username);
-
+      dataOutputStream.writeUTF(string);
     } catch (Exception e) {
-      System.out.println("Error al recibir datos: " + e.getMessage());
+      System.out.println("Error al enviar datos: " + e.getMessage());
       return;
     }
   }
 
+    public void write(String[] strings) {
+    try {
+        dataOutputStream.writeInt(strings.length);
+        for (String s : strings) {
+            dataOutputStream.writeUTF(s);
+        }
+    } catch (Exception e) {
+      System.out.println("Error al enviar datos: " + e.getMessage());
+      return;
+    }
+  }
 }

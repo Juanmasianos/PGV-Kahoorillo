@@ -3,7 +3,7 @@ package net.salesianos.kahorillo.client.listener;
 import java.io.DataInputStream;
 import java.io.IOException;
 
-public class ServerListener {
+public class ServerListener extends Thread {
 
   DataInputStream dataInputStream;
 
@@ -13,22 +13,24 @@ public class ServerListener {
 
   }
 
-  public String playerType() {
-    try {
-      System.out.println(dataInputStream.readUTF());
-      return dataInputStream.readUTF().substring(12);
-    } catch (IOException e) {
-      System.out.println("Error obteniendo el tipo de jugador");
-      return "error";
-    }
-  }
-
   public String read() {
     try {
       return dataInputStream.readUTF();
     } catch (IOException e) {
       System.out.println("Error obteniendo datos del servidor.");
       return "error";
+    }
+  }
+
+  @Override
+  public void run() {
+    boolean game = true;
+    while (game) {
+      String message = read();
+      System.out.println(message);
+      if (message.toLowerCase().equals("se acabo el juego")) {
+        game = false;
+      }
     }
   }
 
