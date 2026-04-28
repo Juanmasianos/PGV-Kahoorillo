@@ -21,18 +21,13 @@ public class app {
 
     System.out.println("Intentando conectar...");
 
-    Socket socket;
-    DataOutputStream dataOutputStream;
-    DataInputStream dataInputStream;
     try {
-      socket = new Socket("localhost", 6969);
+      Socket socket = new Socket("localhost", 6969);
 
       OutputStream outputStream = socket.getOutputStream();
-
       InputStream inputStream = socket.getInputStream();
 
       ClientEmitter clientEmitter = new ClientEmitter(new DataOutputStream(outputStream), scanner);
-
       ServerListener serverListener = new ServerListener(new DataInputStream(inputStream));
 
       System.out.println("Introduce tu nombre de usuario: ");
@@ -40,33 +35,41 @@ public class app {
 
       clientEmitter.write(username);
 
-      String playerType = serverListener.read().substring(12);
+      String playerType = serverListener.read().trim();
 
       if (playerType.equals("leader")) {
-
-
         System.out.println("Bienvenido " + username + ", como has sido el mas rapido, seras el lider. \nPrepara tus preguntas para el juego.");
         Leader leader = new Leader(serverListener, clientEmitter, scanner);
         leader.createQuestions();
         leader.startGame();
 
       } else if (playerType.equals("player")) {
-
         Player player = new Player(serverListener, clientEmitter, scanner);
         System.out.println("Bienvenido " + username + ". Espera a que el lider inicie el juego...");
-        while (!serverListener.read().equals("empezando la ronda de preguntas")) {
+        String startMessage = serverListener.read();
+        if (!startMessage.equals("empezando la ronda de preguntas")) {
+          System.out.println("Error: servidor no inició el juego correctamente.");
+        } else {
+          System.out.println("¡El juego ha comenzado! Prepárate para responder las preguntas.");
+          player.playGame();
         }
-        System.out.println("¡El juego ha comenzado! Prepárate para responder las preguntas.");
-
 
       } else {
         System.out.println("Saliendo del juego...");
       }
 
+      socket.close();
+      
     } catch (UnknownHostException e) {
       System.out.println("Host desconocido, imposible acceder. \n" + e);
     } catch (IOException e) {
       System.out.println("Error en la conexion al servidor. \n" + e);
+    } finally {
+      try {
+        scanner.close();
+      } catch (Exception e) {
+        System.out.println("Error al cerrar el scanner: " + e.getMessage());
+      }
     }
   }
 }

@@ -18,6 +18,7 @@ public class ClientEmitter {
   public void write(String string) {
     try {
       dataOutputStream.writeUTF(string);
+      dataOutputStream.flush();
     } catch (Exception e) {
       System.out.println("Error al enviar datos: " + e.getMessage());
       return;
@@ -29,6 +30,7 @@ public class ClientEmitter {
         dataOutputStream.writeInt(strings.length);
         for (String s : strings) {
             dataOutputStream.writeUTF(s);
+            dataOutputStream.flush();
         }
     } catch (Exception e) {
       System.out.println("Error al enviar datos: " + e.getMessage());

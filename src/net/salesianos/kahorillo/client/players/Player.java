@@ -12,28 +12,27 @@ public class Player {
 
     ServerListener serverListener;
     ClientEmitter clientEmitter;
-    Scanner scanner;
 
     public Player(ServerListener serverListener, ClientEmitter clientEmitter, Scanner scanner) {
 
         this.serverListener = serverListener;
         this.clientEmitter = clientEmitter;
-        this.scanner = scanner;
 
     }
 
     public void playGame() {
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 
-        boolean game = true;
-        while (game) {
-            try {
-                String question = serverListener.read();
+        try {
+            boolean game = true;
+            while (game) {
+                try {
+                    String question = serverListener.read();
 
-                if (question.equals("se acabo el juego")) {
-                    game = false;
-                    return;
-                }
+                    if (question.equals("se acabo el juego")) {
+                        game = false;
+                        break;
+                    }
 
                 System.out.println("\n--- PREGUNTA ---");
                 System.out.println(question);
@@ -51,14 +50,22 @@ public class Player {
                     Thread.sleep(100);
                 }
 
-                if (answered) {
-                    clientEmitter.write(answer);
-                } else {
-                    System.out.println("\n¡TIEMPO AGOTADO!");
+                    if (answered) {
+                        clientEmitter.write(answer);
+                    } else {
+                        System.out.println("\n¡TIEMPO AGOTADO!");
+                        clientEmitter.write("");
+                    }
+                } catch (IOException | InterruptedException e) {
+                    System.out.println("Error en el juego: " + e.getMessage());
+                    game = false;
                 }
-            } catch (IOException | InterruptedException e) {
-                System.out.println("Error en el juego: " + e.getMessage());
-                game = false;
+            }
+        } finally {
+            try {
+                reader.close();
+            } catch (IOException e) {
+                System.out.println("Error al cerrar BufferedReader: " + e.getMessage());
             }
         }
     }

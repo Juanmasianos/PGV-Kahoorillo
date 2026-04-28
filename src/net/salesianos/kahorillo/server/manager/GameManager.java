@@ -15,6 +15,7 @@ public class GameManager {
     private boolean gameStarted = false;
     private boolean gameRunning = false;
     private int minPlayers = 2;
+    private int playersFinished = 0;
 
     public GameManager() {
         this.players = new HashMap<>();
@@ -75,9 +76,13 @@ public class GameManager {
     }
 
     public int recordPlayerAnswers(String username, String[] playerAnswers) {
+        if (answers == null || playerAnswers == null) {
+            System.out.println("Error: preguntas o respuestas no inicializadas");
+            return 0;
+        }
         int score = 0;
-        for (int i = 0; i < playerAnswers.length; i++) {
-            if (playerAnswers[i].toLowerCase().equals(answers[i].toLowerCase())) {
+        for (int i = 0; i < playerAnswers.length && i < answers.length; i++) {
+            if (playerAnswers[i] != null && playerAnswers[i].toLowerCase().equals(answers[i].toLowerCase())) {
                 score++;
             }
         }
@@ -107,6 +112,13 @@ public class GameManager {
             players.remove(username);
             System.out.println("Jugador " + username + " removido. Jugadores activos: " + players.size());
         }
+    }
+
+    public synchronized boolean playerFinished() {
+        playersFinished++;
+        int registeredPlayers = getPlayerCount() + (leaderHandler != null ? 1 : 0);
+        System.out.println("Jugador terminó " + playersFinished + "/" + (registeredPlayers - 1));
+        return playersFinished >= (registeredPlayers - 1);
     }
 
     public void removeLeader() {

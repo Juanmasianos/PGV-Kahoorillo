@@ -30,28 +30,25 @@ public class Leader {
     boolean anotherQuestion = true;
     int iterator = 1;
 
-    do {
-      addQuestion(iterator);
+    while (anotherQuestion) {
       LeaderMenu.showQuestionsMenu();
       String option = scanner.nextLine();
-      boolean correctOption = true;
-      do {
-        switch (option) {
-          case "1":
-            break;
-          case "2":
-            removeQuestion(scanner);
-            break;
-          case "3":
-            anotherQuestion = false;
-            break;
-          default:
-            System.out.println("Opción no válida");
-            correctOption = false;
-        }
-      } while (!correctOption);
-      iterator++;
-    } while (anotherQuestion);
+      
+      switch (option) {
+        case "1":
+          addQuestion(iterator);
+          iterator++;
+          break;
+        case "2":
+          removeQuestion(scanner);
+          break;
+        case "3":
+          anotherQuestion = false;
+          break;
+        default:
+          System.out.println("Opción no válida");
+      }
+    }
 
     clientEmitter.write(questions.toArray(new String[0]));
     clientEmitter.write(answers.toArray(new String[0]));
@@ -59,35 +56,37 @@ public class Leader {
   }
 
   public void startGame() {
-    while (!serverListener.read().equals("preguntas recibidas")) {
+    String response = serverListener.read();
+    if (!response.equals("preguntas recibidas")) {
+      System.out.println("Error: servidor no confirmó recepción de preguntas");
+      return;
     }
     System.out.println("Preguntas enviadas correctamente, esperando a los jugadores...");
-    while (!serverListener.read().equals("jugadores listos")) {
+    
+    response = serverListener.read();
+    if (!response.contains("jugadores listos")) {
+        System.out.println("Error: servidor no confirmó jugadores listos");
+        return;
     }
-    System.out.println("Todos los jugadores están listos, comienza el juego escribiendo \"start\"");
-    String input = "";
-
-    while (true) {
-      if (scanner.hasNextLine()) {
-        input = scanner.nextLine().trim().toLowerCase();
-        if (input.equals("start")) {
-          break;
+    System.out.println("Server dice: " + response);
+    
+    String start = "";
+    while (!start.equalsIgnoreCase("start")) {
+        System.out.print("Escribe 'start' para comenzar: ");
+        start = scanner.nextLine().trim();
+        if (!start.equalsIgnoreCase("start") && !start.isEmpty()) {
+            System.out.println("Comando no reconocido. Escribe 'start'.");
         }
-        if (!input.isEmpty()) {
-          System.out.println("Has escrito: '" + input + "'. Escribe \"start\" para comenzar.");
-        }
-      }
     }
 
+    System.out.println("enviando 'start'...");
     clientEmitter.write("start");
 
-
     System.out.println("Juego iniciado. Esperando a que terminen los jugadores...");
-    
-    // Leemos lo que el servidor mande al final (el ranking)
-    String finalResult = serverListener.read(); 
+
+    String finalResult = serverListener.read();
     System.out.println(finalResult);
-    
+
     System.out.println("El juego ha finalizado. Gracias por ser el líder.");
 
   }
@@ -104,9 +103,19 @@ public class Leader {
   private void removeQuestion(Scanner scanner) {
 
     System.out.println("Introduce el número de la pregunta a eliminar: ");
-    String questionNumber = scanner.nextLine();
-    int questionIndex = Integer.parseInt(questionNumber) - 1;
-    this.questions.remove(questionIndex);
+    try {
+      String questionNumber = scanner.nextLine();
+      int questionIndex = Integer.parseInt(questionNumber) - 1;
+      if (questionIndex >= 0 && questionIndex < this.questions.size()) {
+        System.out.println("Pregunta eliminada: " + this.questions.get(questionIndex));
+        this.questions.remove(questionIndex);
+        this.answers.remove(questionIndex);
+      } else {
+        System.out.println("Índice fuera de rango. Tienes " + this.questions.size() + " preguntas.");
+      }
+    } catch (NumberFormatException e) {
+      System.out.println("Error: debes escribir un número válido.");
+    }
   }
 
 }

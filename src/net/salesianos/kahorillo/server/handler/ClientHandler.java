@@ -21,6 +21,7 @@ public class ClientHandler extends Thread {
     private GameManager gameManager;
     private String username;
     private String clientType;
+    private boolean alreadyRemoved = false;
 
     public ClientHandler(Socket clientSocket, GameManager gameManager) {
         this.clientSocket = clientSocket;
@@ -45,7 +46,7 @@ public class ClientHandler extends Thread {
 
             this.clientType = gameManager.assignType();
 
-            serverEmitter.write("playerType: " + clientType);
+            serverEmitter.write(clientType);
 
             if (clientType.equals("leader")) {
                 handleLeader();
@@ -64,52 +65,57 @@ public class ClientHandler extends Thread {
             System.out.println("Líder " + username + " conectado");
             gameManager.setLeader(this);
 
-            int questionsNumber = clientListener.readInt();
-            String[] questions = new String[questionsNumber];
-            String[] answers = new String[questionsNumber];
-
-            for (int i = 0; i < questionsNumber; i++) {
-                questions[i] = clientListener.read();
-            }
-            for (int i = 0; i < questionsNumber; i++) {
-                answers[i] = clientListener.read();
-            }
+            String[] questions = clientListener.readArray();
+            String[] answers = clientListener.readArray();
 
             gameManager.setQuestions(questions, answers);
 
             serverEmitter.write("preguntas recibidas");
 
-            System.out.println("Preguntas recibidas del líder: " + questionsNumber);
+            System.out.println("Preguntas recibidas del líder: " + questions.length);
 
             gameManager.waitForPlayers();
 
+            Thread.sleep(200);
+
             serverEmitter.write("jugadores listos");
 
-            clientListener.read();
-            String startSignal = clientListener.read();
-            if (startSignal != null && startSignal.equalsIgnoreCase("start")) {
-                System.out.println("Líder ha iniciado el juego correctamente.");
-                gameManager.startGame();
+            System.out.println("Esperando señal de inicio ('start')...");
+            String signal = "";
+
+            while (true) {
+                signal = clientListener.read(); 
+                if (signal != null) {
+                    signal = signal.trim().toLowerCase(); 
+                    if (signal.trim().equals("start")) {
+                        System.out.println("¡Señal 'start' recibida correctamente!");
+                        gameManager.startGame();
+                        break;
+                    } else if (!signal.isEmpty()) {
+                        System.out.println("Basura ignorada en el buffer: [" + signal + "]");
+                    } else {
+                        System.out.println("Cadena vacía recibida, esperando 'start'...");
+                    }
+                }
             }
 
-            // AHORA SÍ, el while no se saltará porque gameRunning ya es true
             while (gameManager.isGameRunning()) {
-                Thread.sleep(100);
-            }
-
-            while (gameManager.isGameRunning()) {
-                Thread.sleep(100);
+                Thread.sleep(1000);
             }
 
             gameManager.endGame();
 
+            serverEmitter.write(gameManager.getScoreBoard().getRankingString());
+
         } catch (InterruptedException e) {
             System.out.println("Error en manejo de líder: " + e.getMessage());
             gameManager.removeLeader();
+            alreadyRemoved = true;
         } catch (Exception e) {
             System.out.println("ERROR CRÍTICO LÍDER: " + e.getMessage());
             e.printStackTrace();
             gameManager.removeLeader();
+            alreadyRemoved = true;
         }
     }
 
@@ -145,6 +151,12 @@ public class ClientHandler extends Thread {
 
             System.out.println("Jugador " + username + " terminó con puntuación: " + score);
 
+            serverEmitter.write("se acabo el juego");
+
+            if (gameManager.playerFinished()) {
+                gameManager.endGame();
+            }
+
             while (gameManager.isGameRunning()) {
                 Thread.sleep(100);
             }
@@ -154,6 +166,7 @@ public class ClientHandler extends Thread {
         } catch (InterruptedException | SocketException e) {
             System.out.println("Error en manejo de jugador " + username + ": " + e.getMessage());
             gameManager.removePlayer(username);
+            alreadyRemoved = true;
         }
     }
 
@@ -170,7 +183,7 @@ public class ClientHandler extends Thread {
     }
 
     private void handleDisconnection() {
-        if (username != null && clientType != null) {
+        if (!alreadyRemoved && username != null && clientType != null) {
             if (clientType.equals("leader")) {
                 gameManager.removeLeader();
             } else {

@@ -8,8 +8,9 @@ import net.salesianos.kahorillo.server.manager.GameManager;
 
 public class app {
   public static void main(String[] args) {
+    ServerSocket serverSocket = null;
     try {
-      ServerSocket serverSocket = new ServerSocket(6969, 10);
+      serverSocket = new ServerSocket(6969, 10);
       System.out.println("Servidor iniciado en puerto 6969...");
 
       GameManager gameManager = new GameManager();
@@ -24,6 +25,14 @@ public class app {
 
     } catch (IOException e) {
       System.out.println("Error al iniciar el servidor: " + e.getMessage());
+    } finally {
+      if (serverSocket != null) {
+        try {
+          serverSocket.close();
+        } catch (IOException e) {
+          System.out.println("Error al cerrar serverSocket: " + e.getMessage());
+        }
+      }
     }
   }
 }
