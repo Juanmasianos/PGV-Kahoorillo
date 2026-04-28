@@ -54,6 +54,10 @@ public class app {
 
         Player player = new Player(serverListener, clientEmitter, scanner);
         System.out.println("Bienvenido " + username + ". Espera a que el lider inicie el juego...");
+        while (!serverListener.read().equals("empezando la ronda de preguntas")) {
+        }
+        System.out.println("¡El juego ha comenzado! Prepárate para responder las preguntas.");
+
 
       } else {
         System.out.println("Saliendo del juego...");

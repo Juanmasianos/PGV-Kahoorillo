@@ -30,14 +30,25 @@ public class ScoreBoard {
     }
 
     public void printRanking() {
-        System.out.println("\n========== RANKING FINAL ==========");
+        System.out.println("\n\nRANKING FINAL \n");
         List<Map.Entry<String, Integer>> ranking = getRanking();
         int position = 1;
         for (Map.Entry<String, Integer> entry : ranking) {
             System.out.println(position + ". " + entry.getKey() + " - " + entry.getValue() + " puntos");
             position++;
         }
-        System.out.println("==================================\n");
+        System.out.println("\n");
+    }
+
+    public String getRankingString() {
+        StringBuilder sb = new StringBuilder("\n\n RANKING FINAL \n");
+        List<Map.Entry<String, Integer>> ranking = getRanking();
+        int pos = 1;
+        for (Map.Entry<String, Integer> entry : ranking) {
+            sb.append(pos + ". " + entry.getKey() + " (" + entry.getValue() + " pts)\n");
+            pos++;
+        }
+        return sb.toString();
     }
 
     public int getPlayerCount() {

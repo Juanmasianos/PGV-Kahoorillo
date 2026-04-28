@@ -1,6 +1,7 @@
 package net.salesianos.kahorillo.server.listener;
 
 import java.io.DataInputStream;
+import java.io.IOException;
 
 public class ClientListener {
 
@@ -10,35 +11,21 @@ public class ClientListener {
         this.dataInputStream = dataInputStream;
     }
 
-    public String read() {
-        try {
-            return dataInputStream.readUTF();
-        } catch (Exception e) {
-            System.out.println("Error al leer datos del cliente: " + e.getMessage());
-            return "error";
-        }
+    public String read() throws IOException {
+        return dataInputStream.readUTF();
     }
 
-    public int readInt() {
-        try {
-            return dataInputStream.readInt();
-        } catch (Exception e) {
-            System.out.println("Error al leer entero del cliente: " + e.getMessage());
-            return -1;
-        }
+    public int readInt() throws IOException {
+        return dataInputStream.readInt();
     }
 
-    public String[] readArray() {
-        try {
-            int length = dataInputStream.readInt();
-            String[] array = new String[length];
-            for (int i = 0; i < length; i++) {
-                array[i] = dataInputStream.readUTF();
-            }
-            return array;
-        } catch (Exception e) {
-            System.out.println("Error al leer array del cliente: " + e.getMessage());
-            return new String[0];
+    public String[] readArray() throws IOException {
+        int length = dataInputStream.readInt();
+        String[] array = new String[length];
+        for (int i = 0; i < length; i++) {
+            array[i] = dataInputStream.readUTF();
         }
+        return array;
+
     }
 }

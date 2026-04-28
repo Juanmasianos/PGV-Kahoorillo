@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 
 import net.salesianos.kahorillo.server.emitter.ServerEmitter;
 import net.salesianos.kahorillo.server.listener.ClientListener;
@@ -37,19 +38,20 @@ public class ClientHandler extends Thread {
 
     @Override
     public void run() {
-        this.username = clientListener.read();
-        System.out.println("Usuario conectado: " + username);
-
-        this.clientType = gameManager.assignType();
-
-        serverEmitter.write("playerType: " + clientType);
-
-        if (clientType.equals("leader")) {
-            handleLeader();
-        } else {
-            handlePlayer();
-        }
         try {
+            this.username = clientListener.read();
+
+            System.out.println("Usuario conectado: " + username);
+
+            this.clientType = gameManager.assignType();
+
+            serverEmitter.write("playerType: " + clientType);
+
+            if (clientType.equals("leader")) {
+                handleLeader();
+            } else {
+                handlePlayer();
+            }
             clientSocket.close();
         } catch (IOException e) {
             System.out.println("Error al cerrar socket: " + e.getMessage());
@@ -57,7 +59,7 @@ public class ClientHandler extends Thread {
         handleDisconnection();
     }
 
-    private void handleLeader() {
+    private void handleLeader() throws IOException {
         try {
             System.out.println("Líder " + username + " conectado");
             gameManager.setLeader(this);
@@ -91,13 +93,15 @@ public class ClientHandler extends Thread {
                 Thread.sleep(100);
             }
 
+            gameManager.endGame();
+
         } catch (InterruptedException e) {
             System.out.println("Error en manejo de líder: " + e.getMessage());
             gameManager.removeLeader();
         }
     }
 
-    private void handlePlayer() {
+    private void handlePlayer() throws IOException {
         try {
             System.out.println("Jugador " + username + " conectado");
             gameManager.addPlayer(this, username);
@@ -106,16 +110,21 @@ public class ClientHandler extends Thread {
             System.out.println("Enviando preguntas a: " + username);
 
             String[] questions = gameManager.getQuestions();
-            serverEmitter.writeInt(questions.length);
-            for (String question : questions) {
-                serverEmitter.write(question);
-            }
+            serverEmitter.write("empezando la ronda de preguntas");
 
             String[] playerAnswers = new String[questions.length];
+
             for (int i = 0; i < questions.length; i++) {
-                playerAnswers[i] = clientListener.read();
-                System.out.println(
-                        "Respuesta recibida de " + username + " para pregunta " + (i + 1) + ": " + playerAnswers[i]);
+                serverEmitter.write("PREGUNTA " + (i + 1) + ": " + questions[i]);
+                clientSocket.setSoTimeout(15000);
+                try {
+                    playerAnswers[i] = clientListener.read();
+                    System.out.println("Respuesta de " + username + ": " + playerAnswers[i]);
+                } catch (SocketTimeoutException e) { 
+                    playerAnswers[i] = "SIN RESPUESTA";
+                } finally {
+                    clientSocket.setSoTimeout(0);
+                }
             }
 
             int score = gameManager.recordPlayerAnswers(username, playerAnswers);
@@ -130,7 +139,7 @@ public class ClientHandler extends Thread {
 
             System.out.println("Cerrando conexión con jugador: " + username);
 
-        } catch (InterruptedException e) {
+        } catch (InterruptedException | SocketException e) {
             System.out.println("Error en manejo de jugador " + username + ": " + e.getMessage());
             gameManager.removePlayer(username);
         }
