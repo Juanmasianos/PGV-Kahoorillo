@@ -19,3 +19,11 @@ Kahorillo es una plataforma de juegos de preguntas y respuestas en tiempo real b
 
 * Tener instalado el **JDK 17** o superior.
 * Acceso a una red local o uso de `localhost`.
+
+# Ejercicio de seguridad
+
+* [Ejercicio 1](docs/ejercicio1.md)
+* [Ejercicio 2](docs/ejercicio2.md)
+* [Ejercicio 3](docs/ejercicio3.md)
+* [Ejercicio 4](docs/ejercicio4.md)
+* [Ejercicio 5](docs/ejercicio5.md)
